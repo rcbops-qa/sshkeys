@@ -19,17 +19,21 @@ def run_cmd(command):
                 'exception': cpe,
                 'command': command}
 
+def valid_host(hosts, name):
+    for host in hosts:
+        if host in name:
+            return True
+    return False
 
-def sshkey(default_pass="password"):
-    sshpass = ("sshpass -p {1} ssh -o UserKnownHostsFile=/dev/null "
-               "-o StrictHostKeyChecking=no -o LogLevel=quiet "
-               "-o ServerAliveInterval=5 -o ServerAliveCountMax=1 -l root {0}")
+def sshkey(default_pass="password", hosts=None):
     api = autoconfigure()
-    nodes = (Node(node, api=api) for node in Node.list(api=api))
+    sshpass = ("ping -c 1 -W 5 {host} && sshpass -p {password} ssh-copy-id root@{host}")
+    hosts = hosts.split(",")
+    nodes = (Node(node, api=api) for node in Node.list(api=api) if valid_host(hosts, node))
     for node in nodes:
         host = node['ipaddress']
-        command = "ssh-copy-id root@{0}".format(host)
         password = node.get('password', default_pass)
-        run_cmd(sshpass.format(command, password))
+        command = sshpass.format(host=host, password=password)
+        run_cmd(command)
 
 argh.dispatch_command(sshkey)
