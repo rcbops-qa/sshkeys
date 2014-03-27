@@ -27,7 +27,7 @@ def valid_host(hosts, name):
 
 def sshkey(default_pass="password", hosts=None):
     api = autoconfigure()
-    sshpass = ("ping -c 1 -W 5 {host} && sshpass -p {password} ssh-copy-id root@{host}")
+    sshpass = ("ping -c 1 -W 5 {host} && sshpass -p {password} ssh-copy-id root@{host}; sshpass -p {password} ssh root@{host} 'restorecon -R -v /root/.ssh' || true")
     hosts = hosts.split(",")
     nodes = (Node(node, api=api) for node in Node.list(api=api) if valid_host(hosts, node))
     for node in nodes:
