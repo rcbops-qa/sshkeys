@@ -28,10 +28,10 @@ def get_targets(ini_file):
     return config.get('target')
 
 
-def main(inventory=None, credentials_file=None):
+def main(inventory=None, credentials=None):
     targets = get_targets(os.path.expanduser(inventory))
     for target in targets:
-        with open(credentials_file, 'r') as stream:
+        with open(credentials, 'r') as stream:
             credentials = json.loads(stream)
             username = credentials['username']
             password = credentials['password']
