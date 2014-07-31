@@ -23,7 +23,7 @@ def run_cmd(command):
 
 
 def get_targets(ini_file):
-    config = ConfigParser.ConfigParser()
+    config = ConfigParser.ConfigParser(allow_no_value=True)
     config.readfp(open(ini_file))
     return config.get('target')
 
