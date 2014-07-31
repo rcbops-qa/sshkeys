@@ -35,7 +35,9 @@ def main(inventory=None, credentials=None):
             ini_file = json.load(fp)
             username = ini_file['username']
             password = ini_file['password']
-            command = 'sshpass -p {} ssh-copy-id {}@{}'
+            command = ('sshpass -p {} ssh-copy-id'
+                       ' -o UserKnownHostsFile=/dev/null'
+                       ' -o StrictHostKeyChecking=no {}@{}')
             run_cmd(command.format(password, username, target))
 
 
