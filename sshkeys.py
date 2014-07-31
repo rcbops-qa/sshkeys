@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-
 import argh
-from chef import Node, autoconfigure
+import ConfigParser
+import os
+import json
+
 from subprocess import check_call, CalledProcessError
 
 
@@ -19,21 +21,24 @@ def run_cmd(command):
                 'exception': cpe,
                 'command': command}
 
-def valid_host(hosts, name):
-    for host in hosts:
-        if host in name:
-            return True
-    return False
 
-def sshkey(default_pass="password", hosts=None):
-    api = autoconfigure()
-    sshpass = ("ping -c 1 -W 5 {host} && sshpass -p {password} ssh-copy-id root@{host}; sshpass -p {password} ssh root@{host} 'restorecon -R -v /root/.ssh' || true")
-    hosts = hosts.split(",")
-    nodes = (Node(node, api=api) for node in Node.list(api=api) if valid_host(hosts, node))
-    for node in nodes:
-        host = node['ipaddress']
-        password = node.get('password', default_pass)
-        command = sshpass.format(host=host, password=password)
-        run_cmd(command)
+def get_targets(ini_file):
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(ini_file))
+    return config.get('target')
 
-argh.dispatch_command(sshkey)
+
+def main(inventory=None, credentials_file=None):
+    targets = get_targets(os.path.expanduser(inventory))
+    for target in targets:
+        with open(credentials_file, 'r') as stream:
+            credentials = json.loads(stream)
+            username = credentials['username']
+            password = credentials['password']
+            command = "sshpass -p {} ssh-copy-id {}@{}".format(password,
+                                                               username,
+                                                               target)
+            run_cmd(command)
+
+
+argh.dispatch_command(main)
