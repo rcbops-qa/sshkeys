@@ -22,14 +22,14 @@ def run_cmd(command):
                 'command': command}
 
 
-def get_targets(ini_file):
+def get_targets(ini_file, hosts):
     config = ConfigParser.ConfigParser(allow_no_value=True)
     config.readfp(open(ini_file))
-    return config.options('target')
+    return config.options(hosts)
 
 
-def main(inventory=None, credentials=None):
-    targets = get_targets(os.path.expanduser(inventory))
+def main(inventory=None, credentials=None, hosts=None):
+    targets = get_targets(os.path.expanduser(inventory), hosts)
     for target in targets:
         with open(credentials, 'r') as fp:
             ini_file = json.load(fp)
