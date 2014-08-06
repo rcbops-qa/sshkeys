@@ -55,13 +55,13 @@ def main(inventory=None, configuration=None):
     :param inventory: Path to an INI file
     :param configuration: Path to a configuration file with credentials
     """
-    hosts = get_hosts(inventory)
 
     with open(configuration, 'r') as fp:
         credentials = json.load(fp)
         username = credentials['username']
         password = credentials['password']
 
+    hosts = get_hosts(inventory)
     for host in hosts:
         command = ('sshpass -p {password} ssh-copy-id'
                    ' -o UserKnownHostsFile=/dev/null'
